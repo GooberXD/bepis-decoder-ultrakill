@@ -4,6 +4,13 @@ Displays the position of most properties, for easy editing in a hex editor*
 * Note: .bepis files are little endian!
 Package requirements: rich
 Usage: decode_bepis.py to_decode.bepis
+
+
+//tinkering 'round, this is how i executed this script
+//open terminal
+//eg:
+//python "C:\Users\<name>\Desktop\bepis decode\bepis-decode.py" "C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves\Slot1\lvl30progress.bepis"
+
 """
 
 import os
@@ -352,4 +359,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
