@@ -16,7 +16,8 @@ This repository serves as a backup for a script used to decode and decrypt **ULT
 4. Use a **Hex Editor** (like [HxD](https://mh-nexus.de/en/hxd/)) to open your save files. You can use the information spat out by the script as a map to find and modify the specific values or strings in the raw file.
 
 > [!WARNING]
-> **MACHINE, PROCEED WITH CAUTION.** > Modifying save files can lead to corruption or data loss. Always keep a backup of your original save files before running any scripts.
+> **MACHINE, PROCEED WITH CAUTION.**
+> > Modifying save files can lead to corruption or data loss. Always keep a backup of your original save files before running any scripts.
 
 ## Credits
 This code was originally authored by **0x3C50**. 
