@@ -24,3 +24,7 @@ This code was originally authored by **0x3C50**.
 
 * **Original Gist:** [40e0c95bd39545f4ba2c5066fb50173a](https://gist.github.com/0x3C50/40e0c95bd39545f4ba2c5066fb50173a)
 * **Author Profile:** [0x3C50 on GitHub](https://github.com/0x3C50)
+
+<p align="center">
+  <img src=".gitAssets/schizo.gif" alt="Bepis Decoder Demo" width="600">
+</p>
