@@ -8,6 +8,7 @@ This repository serves as a backup for a script used to decode and decrypt **ULT
 
 ## Features 
 * **Decode:** Transform encrypted save data into human-readable text.
+* **Save Files:** Repository contains back up save files, in case of corruption.
 
 ## Instructions
 1. **Backup your saves!** (Located in your Steam library under `ULTRAKILL/Saves`).
