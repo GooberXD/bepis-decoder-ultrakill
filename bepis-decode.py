@@ -5,23 +5,24 @@ Displays the position of most properties, for easy editing in a hex editor*
 Package requirements: rich
 Usage: decode_bepis.py to_decode.bepis
 
-
-//tinkering 'round, this is how i executed this script
-//open terminal
-//eg:
-//python "C:\Users\<name>\Desktop\bepis decode\bepis-decode.py" "C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves\Slot1\lvl30progress.bepis"
+#added a gui for easier use
 
 """
 
 import os
+import re
 import struct
 import sys
+import tkinter as tk
 from pathlib import Path
+from tkinter import filedialog, scrolledtext, ttk
 from typing import IO
 
 from rich.console import Console
 
 console = Console()
+printer = None
+gui_text_widget = None
 
 indent = 0
 
@@ -88,8 +89,26 @@ def _read_str(i: IO):
     return i.read(ln).decode("utf8")
 
 
+def strip_rich_markup(text: str) -> str:
+    return re.sub(r"\[[^\]]+\]", "", text)
+
+
+def console_printer(text: str):
+    console.print(text)
+
+
+def gui_printer(text: str):
+    if gui_text_widget is None:
+        return
+    gui_text_widget.insert("end", strip_rich_markup(text) + "\n")
+    gui_text_widget.see("end")
+
+
 def fancy_print(t):
-    console.print("  " * indent + t)
+    if printer is None:
+        console_printer("  " * indent + t)
+    else:
+        printer("  " * indent + t)
 
 
 def print_prop(a, b):
@@ -119,6 +138,75 @@ class indented:
         global indent
         indent -= 1
         fancy_print("}")
+
+
+class BepisDecoderUI:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Bepis Decoder")
+        self.root.geometry("900x700")
+
+        main_frame = ttk.Frame(self.root, padding=10)
+        main_frame.grid(row=0, column=0, sticky="nsew")
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=1)
+        main_frame.rowconfigure(2, weight=1)
+
+        self.file_path = tk.StringVar()
+
+        ttk.Label(main_frame, text="Choose a .bepis file:").grid(row=0, column=0, sticky="w")
+        self.file_entry = ttk.Entry(main_frame, textvariable=self.file_path, width=70)
+        self.file_entry.grid(row=0, column=1, sticky="ew", padx=(5, 5))
+        ttk.Button(main_frame, text="Browse...", command=self.browse_file).grid(row=0, column=2, sticky="e")
+
+        ttk.Button(main_frame, text="Decode", command=self.decode_file).grid(row=1, column=0, columnspan=3, pady=(8, 8), sticky="ew")
+
+        self.output_text = scrolledtext.ScrolledText(main_frame, wrap="none", height=28)
+        self.output_text.grid(row=2, column=0, columnspan=3, sticky="nsew")
+
+        self.status_label = ttk.Label(main_frame, text="Select a file and press Decode.")
+        self.status_label.grid(row=3, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
+    def browse_file(self):
+        path = filedialog.askopenfilename(
+            title="Select a .bepis file",
+            filetypes=[("Bepis files", "*.bepis"), ("All files", "*")],
+        )
+        if path:
+            self.file_path.set(path)
+
+    def decode_file(self):
+        path = self.file_path.get().strip()
+        if not path:
+            self.status_label.config(text="Please choose a file first.")
+            return
+        if not Path(path).is_file():
+            self.status_label.config(text=f"File not found: {path}")
+            return
+
+        self.output_text.delete("1.0", "end")
+        self.status_label.config(text=f"Decoding {path}...")
+
+        global printer, gui_text_widget
+        gui_text_widget = self.output_text
+        printer = gui_printer
+
+        try:
+            with open(path, "rb") as file:
+                decode(file)
+            self.status_label.config(text=f"Finished decoding {Path(path).name}.")
+        except Exception as exc:
+            self.output_text.insert("end", f"Error: {exc}\n")
+            self.status_label.config(text="Decoding failed.")
+
+    def run(self):
+        self.root.mainloop()
+
+
+def run_gui():
+    ui = BepisDecoderUI()
+    ui.run()
 
 
 def _decode_ser_header_record(i: IO):
@@ -348,8 +436,11 @@ def decode(i: IO):
 
 def main():
     if len(sys.argv) < 2:
-        print("syntax: decode_bepis.py file.bepis")
-        sys.exit(1)
+        run_gui()
+        return
+    if sys.argv[1] in ("-g", "--gui"):
+        run_gui()
+        return
     f = Path(sys.argv[1])
     if not f.is_file():
         print(f"! {f} is not a file")
@@ -359,5 +450,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()
